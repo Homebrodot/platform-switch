@@ -1,0 +1,14 @@
+# Generated sources
+*.gen.h
+*.gen.cpp
+
+# Build output
+*.o
+*.obj
+
+# Switch binaries
+*.nacp
+*.nro
+
+# IntelliJ Editors
+.idea/
