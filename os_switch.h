@@ -2,11 +2,9 @@
 /*  os_switch.h                                                           */
 /**************************************************************************/
 /*                         This file is part of:                          */
-/*                             GODOT ENGINE                               */
-/*                        https://godotengine.org                         */
+/*                              HOMEBRODOT                                */
 /**************************************************************************/
-/* Copyright (c) 2014-present Godot Engine contributors (see AUTHORS.md). */
-/* Copyright (c) 2007-2014 Juan Linietsky, Ariel Manzur.                  */
+/* Copyright (c) 2023-present Homebrodot contributors.                    */
 /*                                                                        */
 /* Permission is hereby granted, free of charge, to any person obtaining  */
 /* a copy of this software and associated documentation files (the        */
@@ -30,12 +28,12 @@
 
 #include "api/switch_singleton.h"
 #include "context_gl_switch_egl.h"
-#include "core/os/input.h"
+#include "core/input/input.h"
 #include "core/os/os.h"
 #include "drivers/audren/audio_driver_audren.h"
 #include "joypad_switch.h"
 #include "main/input_default.h"
-#include "servers/visual/visual_server_raster.h"
+#include "servers/rendering/rendering_server_raster.h"
 
 #include <time.h>
 
@@ -43,7 +41,7 @@ class OS_Switch : public OS {
 	int video_driver_index;
 	MainLoop *main_loop;
 	VideoMode current_videomode;
-	VisualServer *visual_server;
+	RenderingServer *visual_server;
 	InputDefault *input;
 	ContextGLSwitchEGL *gl_context;
 	JoypadSwitch *joypad;
@@ -68,7 +66,7 @@ public:
 	virtual bool _check_internal_feature_support(const String &p_feature);
 
 	virtual void alert(const String &p_alert, const String &p_title = "ALERT!");
-	virtual String get_stdin_string(bool p_block = true);
+	virtual String get_stdin_string();
 	virtual Point2 get_mouse_position() const;
 	virtual int get_mouse_button_state() const;
 	virtual void set_window_title(const String &p_title);

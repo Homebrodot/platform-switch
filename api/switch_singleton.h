@@ -2,11 +2,9 @@
 /*  switch_singleton.h                                                    */
 /**************************************************************************/
 /*                         This file is part of:                          */
-/*                             GODOT ENGINE                               */
-/*                        https://godotengine.org                         */
+/*                              HOMEBRODOT                                */
 /**************************************************************************/
-/* Copyright (c) 2014-present Godot Engine contributors (see AUTHORS.md). */
-/* Copyright (c) 2007-2014 Juan Linietsky, Ariel Manzur.                  */
+/* Copyright (c) 2023-present Homebrodot contributors.                    */
 /*                                                                        */
 /* Permission is hereby granted, free of charge, to any person obtaining  */
 /* a copy of this software and associated documentation files (the        */
@@ -33,8 +31,8 @@
 
 #ifndef MODULE_MONO_ENABLED
 
-#include "core/object.h"
-#include "core/variant.h"
+#include "core/object/object.h"
+#include "core/variant/variant.h"
 #ifdef HORIZON_ENABLED
 #include "switch_wrapper.h"
 #endif // HORIZON_ENABLED

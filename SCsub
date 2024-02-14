@@ -6,13 +6,13 @@ Import("env")
 
 files = [
     "drivers/audren/audio_driver_audren.cpp",
-    "godot_switch.cpp",
+    "pandemonium_switch.cpp",
     "os_switch.cpp",
     "joypad_switch.cpp",
     "context_gl_switch_egl.cpp",
 ]
 
-prog = env.add_program("#bin/godot", files)
+prog = env.add_program("#bin/pandemonium", files)
 build_target = env["target"]
 env.Command(
     "#bin/switch_" + env["target"] + ".nro",
@@ -26,7 +26,7 @@ version_str = "{}.{}.{}-{}".format(version.major, version.minor, version.patch, 
 env.Command(
     "nacp_default.nacp",
     None,
-    "/opt/devkitpro/tools/bin/nacptool --create 'Godot Engine' 'Homebrodot Contributors' " + version_str + " $TARGET",
+    "/opt/devkitpro/tools/bin/nacptool --create 'Pandemonium Engine' 'Homebrodot Contributors' " + version_str + " $TARGET",
 )
 
 # if someone needs this they can enable it themselves..

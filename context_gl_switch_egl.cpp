@@ -2,11 +2,9 @@
 /*  context_gl_switch_egl.cpp                                             */
 /**************************************************************************/
 /*                         This file is part of:                          */
-/*                             GODOT ENGINE                               */
-/*                        https://godotengine.org                         */
+/*                              HOMEBRODOT                                */
 /**************************************************************************/
-/* Copyright (c) 2014-present Godot Engine contributors (see AUTHORS.md). */
-/* Copyright (c) 2007-2014 Juan Linietsky, Ariel Manzur.                  */
+/* Copyright (c) 2023-present Homebrodot contributors.                    */
 /*                                                                        */
 /* Permission is hereby granted, free of charge, to any person obtaining  */
 /* a copy of this software and associated documentation files (the        */
@@ -40,8 +38,7 @@
 #define TRACE(fmt, ...) printf("%s: " fmt "\n", __PRETTY_FUNCTION__, ##__VA_ARGS__)
 #endif
 
-ContextGLSwitchEGL::ContextGLSwitchEGL(bool gles3_context) {
-	this->gles3_context = gles3_context;
+ContextGLSwitchEGL::ContextGLSwitchEGL() {
 }
 
 ContextGLSwitchEGL::~ContextGLSwitchEGL() {

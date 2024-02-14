@@ -134,18 +134,8 @@ def configure(env):
             env.Append(CCFLAGS=["-fsanitize=leak"])
             env.Append(LINKFLAGS=["-fsanitize=leak"])
 
-    if env["use_lto"]:
-        env.Append(CCFLAGS=["-flto"])
-        if env.GetOption("num_jobs") > 1:
-            env.Append(LINKFLAGS=["-flto=" + str(env.GetOption("num_jobs"))])
-        else:
-            env.Append(LINKFLAGS=["-flto"])
-
-        env["RANLIB"] = "aarch64-none-elf-gcc-ranlib"
-        env["AR"] = "aarch64-none-elf-gcc-ar"
-    else:
-        env["RANLIB"] = "aarch64-none-elf-ranlib"
-        env["AR"] = "aarch64-none-elf-ar"
+    env["RANLIB"] = "aarch64-none-elf-ranlib"
+    env["AR"] = "aarch64-none-elf-ar"
 
     env.Append(CCFLAGS=["-pipe"])
     env.Append(LINKFLAGS=["-pipe"])
@@ -251,9 +241,18 @@ def configure(env):
             "-DOPENGL_ENABLED",
             "-DGLES_ENABLED",
             "-DPTHREAD_ENABLED",
+            "-DPTHREAD_NO_RENAME",
+            # SQLite
+            "-DSQLITE_OMIT_WAL",
+            "-DSQLITE_CORE",
+            "-DSQLITE_OMIT_LOAD_EXTENSION",
+            "-DSQLITE_ENABLE_FTS4",
+            "-DSQLITE_THREADSAFE=0",
+            "-DSQLITE_MAX_EXPR_DEPTH=0",
+            "-DSQLITE_OMIT_DEPRECATED",
+            "-DSQLITE_OMIT_SHARED_CACHE",
         ]
     )
-    env.Append(CPPFLAGS=["-DPTHREAD_NO_RENAME"])
     env.Append(LIBS=["EGL", "GLESv2", "glapi", "drm_nouveau", "nx"])
 
     # -lglad -lEGL -lglapi -ldrm_nouveau

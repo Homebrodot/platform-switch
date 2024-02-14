@@ -2,11 +2,9 @@
 /*  context_gl_switch_egl.h                                               */
 /**************************************************************************/
 /*                         This file is part of:                          */
-/*                             GODOT ENGINE                               */
-/*                        https://godotengine.org                         */
+/*                              HOMEBRODOT                                */
 /**************************************************************************/
-/* Copyright (c) 2014-present Godot Engine contributors (see AUTHORS.md). */
-/* Copyright (c) 2007-2014 Juan Linietsky, Ariel Manzur.                  */
+/* Copyright (c) 2023-present Homebrodot contributors.                    */
 /*                                                                        */
 /* Permission is hereby granted, free of charge, to any person obtaining  */
 /* a copy of this software and associated documentation files (the        */
@@ -33,7 +31,6 @@
 #include <EGL/egl.h> // EGL library
 
 class ContextGLSwitchEGL {
-	bool gles3_context;
 	bool vsync;
 
 	EGLDisplay display;
@@ -55,6 +52,6 @@ public:
 	void reset();
 	void cleanup();
 
-	ContextGLSwitchEGL(bool gles3);
+	ContextGLSwitchEGL();
 	virtual ~ContextGLSwitchEGL();
 };

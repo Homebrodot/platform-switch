@@ -2,11 +2,9 @@
 /*  export.cpp                                                            */
 /**************************************************************************/
 /*                         This file is part of:                          */
-/*                             GODOT ENGINE                               */
-/*                        https://godotengine.org                         */
+/*                              HOMEBRODOT                                */
 /**************************************************************************/
-/* Copyright (c) 2014-present Godot Engine contributors (see AUTHORS.md). */
-/* Copyright (c) 2007-2014 Juan Linietsky, Ariel Manzur.                  */
+/* Copyright (c) 2023-present Homebrodot contributors.                    */
 /*                                                                        */
 /* Permission is hereby granted, free of charge, to any person obtaining  */
 /* a copy of this software and associated documentation files (the        */
@@ -29,15 +27,17 @@
 /**************************************************************************/
 
 // XXX: fix your windows build with this one weird trick
-// (Microsoft doesn't like strncpy..)
+// (Microsoft doesn't like strncpy.)
 #define _CRT_SECURE_NO_WARNINGS
 
 #include "export.h"
 
+#include "core/config/project_settings.h"
 #include "core/io/packet_peer_udp.h"
 #include "core/os/file_access.h"
 #include "editor/editor_export.h"
 #include "editor/editor_node.h"
+#include "editor/editor_settings.h"
 #include "platform/switch/logo.gen.h"
 #include "scene/resources/texture.h"
 
@@ -49,7 +49,7 @@ public:
 	Vector<uint8_t> editor_id_vec;
 
 protected:
-	virtual void _export_begin(const Set<String> &p_features, bool p_debug, const String &p_path, int p_flags) {
+	virtual void _export_begin(const RBSet<String> &p_features, bool p_debug, const String &p_path, int p_flags) {
 		if (editor_id_vec.size() != 0) {
 			add_file("custom_editor_id", editor_id_vec, false);
 		}
@@ -131,15 +131,7 @@ class EditorExportPlatformSwitch : public EditorExportPlatform {
 
 public:
 	virtual void get_preset_features(const Ref<EditorExportPreset> &p_preset, List<String> *r_features) {
-		String driver = ProjectSettings::get_singleton()->get("rendering/quality/driver/driver_name");
-		if (driver == "GLES2") {
-			r_features->push_back("etc");
-		} else if (driver == "GLES3") {
-			r_features->push_back("etc2");
-			if (ProjectSettings::get_singleton()->get("rendering/quality/driver/fallback_to_gles2")) {
-				r_features->push_back("etc");
-			}
-		}
+        r_features->push_back("etc");
 	}
 
 	virtual void get_platform_features(List<String> *r_features) {
@@ -208,6 +200,7 @@ public:
 		device_lock.unlock();
 		return s;
 	}
+
 	virtual Error run(const Ref<EditorExportPreset> &p_preset, int p_device, int p_debug_flags) {
 		String can_export_error;
 		bool can_export_missing_templates;
@@ -275,7 +268,7 @@ public:
 		return OK;
 	}
 
-	virtual bool can_export(const Ref<EditorExportPreset> &p_preset, String &r_error, bool &r_missing_templates) const {
+	virtual bool has_valid_export_configuration(const Ref<EditorExportPreset> &p_preset, String &r_error, bool &r_missing_templates) const {
 		String err;
 		r_missing_templates =
 				find_export_template(TEMPLATE_RELEASE) == String() ||
@@ -295,17 +288,21 @@ public:
 		return valid;
 	}
 
+	virtual bool has_valid_project_configuration(const Ref<EditorExportPreset> &p_preset, String &r_error) const {
+		return true;
+	}
+
 	virtual List<String> get_binary_extensions(const Ref<EditorExportPreset> &p_preset) const {
 		List<String> list;
 		list.push_back("nro");
 		return list;
 	}
 
-	virtual void resolve_platform_feature_priorities(const Ref<EditorExportPreset> &p_preset, Set<String> &p_features) {
+	virtual void resolve_platform_feature_priorities(const Ref<EditorExportPreset> &p_preset, RBSet<String> &p_features) {
 	}
 
 	virtual Error export_pack(const Ref<EditorExportPreset> &p_preset, bool p_debug, const String &p_path, int p_flags = 0) {
-		// XXX i hate this - we have to do this _before_ the export notifier
+		// XXX I hate this - we have to do this _before_ the export notifier
 		String custom_editor_id = p_preset->get("application/custom_editor_id");
 		export_plugin->editor_id_vec.clear();
 
@@ -323,7 +320,7 @@ public:
 	}
 
 	virtual Error export_project(const Ref<EditorExportPreset> &p_preset, bool p_debug, const String &p_path, int p_flags = 0) {
-		// XXX i hate this - we have to do this _before_ the export notifier
+		// XXX I hate this - we have to do this _before_ the export notifier
 		String custom_editor_id = p_preset->get("application/custom_editor_id");
 		export_plugin->editor_id_vec.clear();
 

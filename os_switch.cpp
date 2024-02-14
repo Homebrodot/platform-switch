@@ -2,11 +2,9 @@
 /*  os_switch.cpp                                                         */
 /**************************************************************************/
 /*                         This file is part of:                          */
-/*                             GODOT ENGINE                               */
-/*                        https://godotengine.org                         */
+/*                              HOMEBRODOT                                */
 /**************************************************************************/
-/* Copyright (c) 2014-present Godot Engine contributors (see AUTHORS.md). */
-/* Copyright (c) 2007-2014 Juan Linietsky, Ariel Manzur.                  */
+/* Copyright (c) 2023-present Homebrodot contributors.                    */
 /*                                                                        */
 /* Permission is hereby granted, free of charge, to any person obtaining  */
 /* a copy of this software and associated documentation files (the        */
@@ -33,7 +31,6 @@
 #include "switch_wrapper.h"
 
 #include "drivers/gles2/rasterizer_gles2.h"
-#include "drivers/gles3/rasterizer_gles3.h"
 #include "drivers/unix/dir_access_unix.h"
 #include "drivers/unix/file_access_unix.h"
 #include "drivers/unix/ip_unix.h"
@@ -41,7 +38,7 @@
 #include "drivers/unix/thread_posix.h"
 #include "main/main.h"
 #include "servers/audio_server.h"
-#include "servers/visual/visual_server_wrap_mt.h"
+#include "servers/rendering/rendering_server_wrap_mt.h"
 
 #include "core/os/keyboard.h"
 
@@ -84,17 +81,12 @@ void OS_Switch::swap_buffers() {
 
 Error OS_Switch::initialize(const VideoMode &p_desired, int p_video_driver, int p_audio_driver) {
 #ifdef OPENGL_ENABLED
-	bool gles3_context = true;
-	if (p_video_driver == VIDEO_DRIVER_GLES2) {
-		gles3_context = false;
-	}
-
 	bool editor = Engine::get_singleton()->is_editor_hint();
 	bool gl_initialization_error = false;
 
 	gl_context = NULL;
 	while (!gl_context) {
-		gl_context = memnew(ContextGLSwitchEGL(gles3_context));
+		gl_context = memnew(ContextGLSwitchEGL());
 
 		if (gl_context->initialize() != OK) {
 			memdelete(gl_context);
@@ -107,7 +99,6 @@ Error OS_Switch::initialize(const VideoMode &p_desired, int p_video_driver, int 
 				}
 
 				p_video_driver = VIDEO_DRIVER_GLES2;
-				gles3_context = false;
 			} else {
 				gl_initialization_error = true;
 				break;
@@ -116,31 +107,14 @@ Error OS_Switch::initialize(const VideoMode &p_desired, int p_video_driver, int 
 	}
 
 	while (true) {
-		if (gles3_context) {
-			if (RasterizerGLES3::is_viable() == OK) {
-				RasterizerGLES3::register_config();
-				RasterizerGLES3::make_current();
-				break;
-			} else {
-				if (GLOBAL_GET("rendering/quality/driver/fallback_to_gles2") || editor) {
-					p_video_driver = VIDEO_DRIVER_GLES2;
-					gles3_context = false;
-					continue;
-				} else {
-					gl_initialization_error = true;
-					break;
-				}
-			}
-		} else {
-			if (RasterizerGLES2::is_viable() == OK) {
-				RasterizerGLES2::register_config();
-				RasterizerGLES2::make_current();
-				break;
-			} else {
-				gl_initialization_error = true;
-				break;
-			}
-		}
+        if (RasterizerGLES2::is_viable() == OK) {
+            RasterizerGLES2::register_config();
+            RasterizerGLES2::make_current();
+            break;
+        } else {
+            gl_initialization_error = true;
+            break;
+        }
 	}
 
 	if (gl_initialization_error) {
@@ -155,9 +129,9 @@ Error OS_Switch::initialize(const VideoMode &p_desired, int p_video_driver, int 
 	gl_context->set_use_vsync(current_videomode.use_vsync);
 #endif
 
-	visual_server = memnew(VisualServerRaster);
+	visual_server = memnew(RenderingServerRaster);
 	if (get_render_thread_mode() != RENDER_THREAD_UNSAFE) {
-		visual_server = memnew(VisualServerWrapMT(visual_server, get_render_thread_mode() == RENDER_SEPARATE_THREAD));
+		visual_server = memnew(RenderingServerWrapMT(visual_server, get_render_thread_mode() == RENDER_SEPARATE_THREAD));
 	}
 
 	visual_server->init();
@@ -206,7 +180,6 @@ void OS_Switch::finalize_core() {
 
 bool OS_Switch::_check_internal_feature_support(const String &p_feature) {
 	if (p_feature == "mobile") {
-		//TODO support etc2 only if GLES3 driver is selected
 		return true;
 	}
 	return false;
@@ -217,7 +190,7 @@ void OS_Switch::alert(const String &p_alert, const String &p_title) {
 	errorApplicationCreate(&config, p_title.utf8().ptr(), p_alert.utf8().ptr());
 	errorApplicationShow(&config);
 }
-String OS_Switch::get_stdin_string(bool p_block) {
+String OS_Switch::get_stdin_string() {
 	return "";
 }
 Point2 OS_Switch::get_mouse_position() const {
@@ -566,10 +539,10 @@ String OS_Switch::get_user_data_dir() const {
 			}
 			return get_data_path().plus_file(custom_dir);
 		} else {
-			return get_data_path().plus_file(get_godot_dir_name()).plus_file("app_userdata").plus_file(appname);
+			return get_data_path().plus_file(get_pandemonium_dir_name()).plus_file("app_userdata").plus_file(appname);
 		}
 	}
-	return get_data_path().plus_file(get_godot_dir_name()).plus_file("app_userdata").plus_file("__unknown");
+	return get_data_path().plus_file(get_pandemonium_dir_name()).plus_file("app_userdata").plus_file("__unknown");
 }
 
 OS_Switch *OS_Switch::get_singleton() {
