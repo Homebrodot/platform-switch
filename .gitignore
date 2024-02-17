@@ -1,3 +1,6 @@
+
+__pycache__/
+
 # Generated sources
 *.gen.h
 *.gen.cpp

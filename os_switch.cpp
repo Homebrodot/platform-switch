@@ -31,11 +31,11 @@
 #include "switch_wrapper.h"
 
 #include "drivers/gles2/rasterizer_gles2.h"
-#include "drivers/unix/dir_access_unix.h"
-#include "drivers/unix/file_access_unix.h"
-#include "drivers/unix/ip_unix.h"
-#include "drivers/unix/net_socket_posix.h"
+#include "drivers/files/dir_access_horizon.h"
+#include "drivers/files/file_access_horizon.h"
+#include "drivers/net/net_socket_horizon.h"
 #include "drivers/unix/thread_posix.h"
+#include "drivers/ip/ip_horizon.h"
 #include "main/main.h"
 #include "servers/audio_server.h"
 #include "servers/rendering/rendering_server_wrap_mt.h"
@@ -60,16 +60,16 @@ void OS_Switch::initialize_core() {
 	init_thread_posix();
 #endif
 
-	FileAccess::make_default<FileAccessUnix>(FileAccess::ACCESS_RESOURCES);
-	FileAccess::make_default<FileAccessUnix>(FileAccess::ACCESS_USERDATA);
-	FileAccess::make_default<FileAccessUnix>(FileAccess::ACCESS_FILESYSTEM);
-	DirAccess::make_default<DirAccessUnix>(DirAccess::ACCESS_RESOURCES);
-	DirAccess::make_default<DirAccessUnix>(DirAccess::ACCESS_USERDATA);
-	DirAccess::make_default<DirAccessUnix>(DirAccess::ACCESS_FILESYSTEM);
+	FileAccess::make_default<FileAccessHorizon>(FileAccess::ACCESS_RESOURCES);
+	FileAccess::make_default<FileAccessHorizon>(FileAccess::ACCESS_USERDATA);
+	FileAccess::make_default<FileAccessHorizon>(FileAccess::ACCESS_FILESYSTEM);
+	DirAccess::make_default<DirAccessHorizon>(DirAccess::ACCESS_RESOURCES);
+	DirAccess::make_default<DirAccessHorizon>(DirAccess::ACCESS_USERDATA);
+	DirAccess::make_default<DirAccessHorizon>(DirAccess::ACCESS_FILESYSTEM);
 
 #ifndef NO_NETWORK
-	NetSocketPosix::make_default();
-	IP_Unix::make_default();
+	NetSocketHorizon::make_default();
+	IP_Horizon::make_default();
 #endif
 }
 
