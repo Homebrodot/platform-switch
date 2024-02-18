@@ -67,7 +67,7 @@ class EditorExportPlatformSwitch : public EditorExportPlatform {
 	Thread device_thread;
 	volatile bool quit_request;
 
-	ExportPluginSwitch *export_plugin;
+	Ref<ExportPluginSwitch> export_plugin;
 
 	static void _device_poll_thread(void *ud) {
 		EditorExportPlatformSwitch *ea = (EditorExportPlatformSwitch *)ud;
@@ -555,7 +555,7 @@ public:
 	}
 
 	EditorExportPlatformSwitch() {
-		Ref<Image> img = memnew(Image(_switch_logo));
+		Ref<Image> img = Ref<Image>(memnew(Image(_switch_logo)));
 		logo.instance();
 		logo->create_from_image(img);
 
@@ -563,16 +563,13 @@ public:
 		quit_request = false;
 		device_thread.start(_device_poll_thread, this);
 
-		export_plugin = memnew(ExportPluginSwitch);
+		export_plugin.instance();
 		EditorExport::get_singleton()->add_export_plugin(export_plugin);
 	}
 
 	~EditorExportPlatformSwitch() {
 		quit_request = true;
 		device_thread.wait_to_finish();
-
-		// DO NOT free it
-		//memdelete(export_plugin);
 	}
 };
 
