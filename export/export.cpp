@@ -149,11 +149,11 @@ public:
 	}
 
 	virtual String get_name() const {
-		return "Nintendo Switch";
+		return "Nintendo Switch (Homebrew)";
 	}
 
 	virtual String get_os_name() const {
-		return "Switch";
+		return "SwitchHB";
 	}
 
 	virtual Ref<Texture> get_logo() const {
