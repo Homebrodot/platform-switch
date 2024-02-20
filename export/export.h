@@ -31,8 +31,8 @@
 
 #ifndef MODULE_MONO_ENABLED
 
-#include "thirdparty/libnx/nacp.h"
-#include "thirdparty/libnx/nro.h"
+#include "platform/switch/thirdparty/libnx/nacp.h"
+#include "platform/switch/thirdparty/libnx/nro.h"
 #include <cstring>
 #include <string>
 

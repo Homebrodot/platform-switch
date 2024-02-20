@@ -118,6 +118,8 @@ public:
 
 	void key(uint32_t p_key, bool p_pressed);
 
+	virtual String get_custom_platform_resource_pack_location() { return String("romfs:/game.pck"); }
+
 	static OS_Switch *get_singleton();
 
 	OS_Switch();

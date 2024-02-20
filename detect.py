@@ -33,7 +33,6 @@ def can_build():
         return False
     return True
 
-
 def get_opts():
 
     from SCons.Variables import BoolVariable, EnumVariable
@@ -46,31 +45,51 @@ def get_opts():
         BoolVariable("touch", "Enable touch events", True),
     ]
 
-
 def get_flags():
-    return [
-        ("tools", False),
-        ("builtin_bullet", True),  # Godot likes to depend on really new versions of bullet.
-        ("builtin_enet", True),  # Not in portlibs.
-        ("builtin_freetype", False),
-        ("builtin_libogg", False),
-        ("builtin_libpng", False),
-        ("builtin_libtheora", False),
-        ("builtin_libvorbis", False),
-        ("builtin_libvpx", False),
-        ("builtin_libwebp", False),
-        ("builtin_wslay", False),
-        ("builtin_mbedtls", False),
-        ("builtin_miniupnpc", False),
-        ("builtin_opus", False),
-        ("builtin_pcre2", False),
-        ("builtin_squish", True),  # Not in portlibs.
-        ("builtin_zlib", False),
-        ("builtin_zstd", False),
-    ]
+    f = None
+
+    if not force_builtin_flags():
+        f = [
+            ("tools", False),
+            ("builtin_pcre2_with_jit", False),
+            # Todo should probably figure out a way to not have these eventually:
+            ("builtin_mbedtls", False),
+            ("builtin_libogg", False),
+            ("builtin_libpng", False),
+            ("builtin_libvorbis", False),
+            ("builtin_libtheora", False),
+            ("builtin_wslay", False),
+            ("builtin_miniupnpc", False),
+        ]
+    else:
+        f = [
+            ("tools", False),
+            ("builtin_enet", True),  # Not in portlibs.
+            ("builtin_squish", True),  # Not in portlibs.
+            ("builtin_freetype", False),
+            ("builtin_libogg", False),
+            ("builtin_libpng", False),
+            ("builtin_libtheora", False),
+            ("builtin_libvorbis", False),
+            ("builtin_wslay", False),
+            ("builtin_mbedtls", False),
+            ("builtin_miniupnpc", False),
+            ("builtin_opus", False),
+            ("builtin_pcre2", False),
+            ("builtin_zlib", False),
+            ("builtin_zstd", False),
+        ]
+
+    return f
 
 
 def configure(env):
+    if sys.platform == "cygwin":
+        # To prevent "Argument list too long" error when building on windows
+        # Note this is likely not needed on linux
+        # Detection logic from https://github.com/conan-io/conan/issues/2638#issuecomment-377393270
+        env["split_libmodules"] = True
+
     env["CC"] = "aarch64-none-elf-gcc"
     env["CXX"] = "aarch64-none-elf-g++"
     env["LD"] = "aarch64-none-elf-ld"
@@ -92,6 +111,8 @@ def configure(env):
 
     env.Append(LIBPATH=["{}/portlibs/switch/lib".format(dkp), "{}/libnx/lib".format(dkp)])
     env.Prepend(LINKFLAGS=arch + ["-specs={}/libnx/switch.specs".format(dkp)])
+
+    env.Prepend(CPPPATH=["#platform/switch/compat"])
 
     if env["target"] == "release":
         # -O3 -ffast-math is identical to -Ofast. We need to split it out so we can selectively disable
@@ -158,21 +179,6 @@ def configure(env):
     if not env["builtin_libpng"]:
         env.ParseConfig("aarch64-none-elf-pkg-config libpng --cflags --libs")
 
-    if not env["builtin_bullet"]:
-        # We need at least version 2.88
-        import subprocess
-
-        bullet_version = subprocess.check_output(["aarch64-none-elf-pkg-config", "bullet", "--modversion"]).strip()
-        if str(bullet_version) < "2.88":
-            # Abort as system bullet was requested but too old
-            print(
-                "Bullet: System version {0} does not match minimal requirements ({1}). Aborting.".format(
-                    bullet_version, "2.88"
-                )
-            )
-            sys.exit(255)
-        env.ParseConfig("aarch64-none-elf-pkg-config bullet --cflags --libs")
-
     if not env["builtin_enet"]:
         env.ParseConfig("aarch64-none-elf-pkg-config libenet --cflags --libs")
 
@@ -194,9 +200,6 @@ def configure(env):
         if any(platform.machine() in s for s in list_of_x86):
             env["x86_libtheora_opt_gcc"] = True
 
-    if not env["builtin_libvpx"]:
-        env.ParseConfig("aarch64-none-elf-pkg-config vpx --cflags --libs")
-
     if not env["builtin_libvorbis"]:
         env["builtin_libogg"] = False  # Needed to link against system libvorbis
         env.ParseConfig("aarch64-none-elf-pkg-config vorbis vorbisfile --cflags --libs")
@@ -208,12 +211,11 @@ def configure(env):
     if not env["builtin_libogg"]:
         env.ParseConfig("aarch64-none-elf-pkg-config ogg --cflags --libs")
 
-    if not env["builtin_libwebp"]:
-        env.ParseConfig("aarch64-none-elf-pkg-config libwebp --cflags --libs")
-
     if not env["builtin_mbedtls"]:
         # mbedTLS does not provide a pkgconfig config yet. See https://github.com/ARMmbed/mbedtls/issues/228
         env.Append(LIBS=["mbedtls", "mbedx509", "mbedcrypto"])
+    #else:
+    #    env.Prepend(CPPFLAGS=["-DMBEDTLS_NO_PLATFORM_ENTROPY"])
 
     if not env["builtin_wslay"]:
         env.ParseConfig("aarch64-none-elf-pkg-config libwslay --cflags --libs")
@@ -237,22 +239,39 @@ def configure(env):
         CPPFLAGS=[
             "-DHOMEBREW_ENABLED",
             "-DHORIZON_ENABLED",
-            "-DLIBC_FILEIO_ENABLED",
+            # Note that this just makes the NetSocketPosix implementation go away, Networking will still work because of NetSocketHorizon!
+            "-DUNIX_SOCKET_UNAVAILABLE",
             "-DOPENGL_ENABLED",
             "-DGLES_ENABLED",
+            "-DGLES2_LOAD_EXT_NO_DLCFN_AVAILABLE",
+            "-DS3TC_NOT_SUPPORTED",
+            "-DENET_UNIX_ENABLED",
             "-DPTHREAD_ENABLED",
             "-DPTHREAD_NO_RENAME",
-            # SQLite
-            "-DSQLITE_OMIT_WAL",
-            "-DSQLITE_CORE",
-            "-DSQLITE_OMIT_LOAD_EXTENSION",
-            "-DSQLITE_ENABLE_FTS4",
-            "-DSQLITE_THREADSAFE=0",
-            "-DSQLITE_MAX_EXPR_DEPTH=0",
-            "-DSQLITE_OMIT_DEPRECATED",
-            "-DSQLITE_OMIT_SHARED_CACHE",
+            "-DGDNATIVE_LINUX_BSD_WEB",
         ]
     )
+
+    if env["module_database_sqlite_enabled"]:
+        env.Append(
+            CPPFLAGS=[
+                "-DSQLITE_OS_OTHER=1",
+                "-DSQLITE_NO_FCHOWN",
+                "-DSQLITE_OMIT_WAL",
+                "-DSQLITE_CORE",
+                "-DSQLITE_OMIT_LOAD_EXTENSION",
+                "-DSQLITE_ENABLE_FTS4",
+                "-DSQLITE_THREADSAFE=0",
+                "-DSQLITE_MAX_EXPR_DEPTH=0",
+                "-DSQLITE_OMIT_DEPRECATED",
+                "-DSQLITE_OMIT_SHARED_CACHE",
+            ]
+        )
+
     env.Append(LIBS=["EGL", "GLESv2", "glapi", "drm_nouveau", "nx"])
 
     # -lglad -lEGL -lglapi -ldrm_nouveau
+
+# Make this return True in your fork to force all bultins to link dynamically forcibly
+def force_builtin_flags():
+    return False

@@ -6,11 +6,18 @@ Import("env")
 
 files = [
     "drivers/audren/audio_driver_audren.cpp",
+    "drivers/ip/ip_horizon.cpp",
+    "drivers/files/dir_access_horizon.cpp",
+    "drivers/files/file_access_horizon.cpp",
+    "drivers/net/net_socket_horizon.cpp",
     "pandemonium_switch.cpp",
     "os_switch.cpp",
     "joypad_switch.cpp",
     "context_gl_switch_egl.cpp",
 ]
+
+if env["module_database_sqlite_enabled"]:
+    files += [ "database_sqlite/nx-vfs.c" ]
 
 prog = env.add_program("#bin/pandemonium", files)
 build_target = env["target"]
