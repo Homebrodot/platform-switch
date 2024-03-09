@@ -42,7 +42,7 @@
 class OS_Switch : public OS {
 	int video_driver_index;
 	MainLoop *main_loop;
-	VideoMode current_videomode;
+	VideoMode video_mode;
 	VisualServer *visual_server;
 	InputDefault *input;
 	ContextGLSwitchEGL *gl_context;
@@ -80,6 +80,7 @@ public:
 
 	virtual int get_current_video_driver() const;
 	virtual Size2 get_window_size() const;
+    virtual bool is_window_always_on_top() const { return true; }
 
 	virtual Error execute(const String &p_path, const List<String> &p_arguments, bool p_blocking, ProcessID *r_child_id = NULL, String *r_pipe = NULL, int *r_exitcode = NULL, bool read_stderr = false, Mutex *p_pipe_mutex = NULL, bool p_open_console = false);
 	virtual Error kill(const ProcessID &p_pid);
