@@ -361,7 +361,7 @@ public:
 		memset(nacp, 0, sizeof(NacpStruct));
 		create_nacp(nacp, title, author, version);
 
-		if (p_preset->get("application/embed_pck")) {
+		if (p_preset->get("binary_format/embed_pck")) {
 			String build_romfs = EditorSettings::get_singleton()->get("export/switch/build_romfs");
 
 			// If we can't find it, look for a bundled copy.
