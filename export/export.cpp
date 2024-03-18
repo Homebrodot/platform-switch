@@ -148,7 +148,8 @@ public:
 
 	virtual void get_export_options(List<ExportOption> *r_options) {
 		String title = ProjectSettings::get_singleton()->get("application/config/name");
-		r_options->push_back(ExportOption(PropertyInfo(Variant::BOOL, "application/fused_build"), false));
+		r_options->push_back(ExportOption(PropertyInfo(Variant::BOOL, "binary_format/embed_pck"), false));
+
 		r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "application/custom_editor_id"), ""));
 		r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "application/title", PROPERTY_HINT_PLACEHOLDER_TEXT, title), title));
 		r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "application/author", PROPERTY_HINT_PLACEHOLDER_TEXT, "Game Author"), ""));
@@ -360,7 +361,7 @@ public:
 		memset(nacp, 0, sizeof(NacpStruct));
 		create_nacp(nacp, title, author, version);
 
-		if (p_preset->get("application/fused_build")) {
+		if (p_preset->get("application/embed_pck")) {
 			String build_romfs = EditorSettings::get_singleton()->get("export/switch/build_romfs");
 
 			// If we can't find it, look for a bundled copy.
