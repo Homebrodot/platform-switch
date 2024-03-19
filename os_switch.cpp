@@ -152,7 +152,7 @@ Error OS_Switch::initialize(const VideoMode &p_desired, int p_video_driver, int 
 
 	video_driver_index = p_video_driver;
 
-	gl_context->set_use_vsync(current_videomode.use_vsync);
+	gl_context->set_use_vsync(video_mode.use_vsync);
 #endif
 
 	visual_server = memnew(VisualServerRaster);
@@ -230,12 +230,16 @@ int OS_Switch::get_mouse_button_state() const {
 
 void OS_Switch::set_window_title(const String &p_title) {}
 
-void OS_Switch::set_video_mode(const OS::VideoMode &p_video_mode, int p_screen) {}
+void OS_Switch::set_video_mode(const OS::VideoMode &p_video_mode, int p_screen) {
+    video_mode = p_video_mode;
+}
 OS::VideoMode OS_Switch::get_video_mode(int p_screen) const {
-	return VideoMode(1280, 720);
+    return video_mode;
 }
 
-void OS_Switch::get_fullscreen_mode_list(List<OS::VideoMode> *p_list, int p_screen) const {}
+void OS_Switch::get_fullscreen_mode_list(List<OS::VideoMode> *p_list, int p_screen) const {
+    p_list->push_back(video_mode);
+}
 
 OS::RenderThreadMode OS_Switch::get_render_thread_mode() const {
 	if (OS::get_render_thread_mode() == OS::RenderThreadMode::RENDER_SEPARATE_THREAD) {
@@ -248,7 +252,7 @@ int OS_Switch::get_current_video_driver() const {
 	return video_driver_index;
 }
 Size2 OS_Switch::get_window_size() const {
-	return Size2(1280, 720);
+	return Size2(video_mode.width, video_mode.height);
 }
 
 Error OS_Switch::execute(const String &p_path, const List<String> &p_arguments, bool p_blocking, ProcessID *r_child_id, String *r_pipe, int *r_exitcode, bool read_stderr, Mutex *p_pipe_mutex, bool p_open_console) {
@@ -577,6 +581,11 @@ OS_Switch *OS_Switch::get_singleton() {
 };
 
 OS_Switch::OS_Switch() {
+    video_mode.width = 1280;
+    video_mode.height = 720;
+    video_mode.fullscreen = true;
+    video_mode.resizable = false;
+
 	video_driver_index = 0;
 	main_loop = nullptr;
 	visual_server = nullptr;
