@@ -68,7 +68,7 @@ public:
 	virtual bool _check_internal_feature_support(const String &p_feature);
 
 	virtual void alert(const String &p_alert, const String &p_title = "ALERT!");
-	virtual String get_stdin_string(bool p_block = true);
+	virtual String get_stdin_string();
 	virtual Point2 get_mouse_position() const;
 	virtual int get_mouse_button_state() const;
 	virtual void set_window_title(const String &p_title);

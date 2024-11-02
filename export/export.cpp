@@ -276,7 +276,7 @@ public:
 		return OK;
 	}
 
-	virtual bool can_export(const Ref<EditorExportPreset> &p_preset, String &r_error, bool &r_missing_templates) const {
+	virtual bool has_valid_export_configuration(const Ref<EditorExportPreset> &p_preset, String &r_error, bool &r_missing_templates) const {
 		String err;
 		r_missing_templates =
 				find_export_template(TEMPLATE_RELEASE) == String() ||
@@ -294,6 +294,10 @@ public:
 		}
 
 		return valid;
+	}
+
+	virtual bool has_valid_project_configuration(const Ref<EditorExportPreset> &p_preset, String &r_error) const {
+		return true;
 	}
 
 	virtual List<String> get_binary_extensions(const Ref<EditorExportPreset> &p_preset) const {
@@ -592,6 +596,7 @@ void register_switch_exporter() {
 	EDITOR_DEF("export/switch/build_romfs", "");
 	EditorSettings::get_singleton()->add_property_hint(PropertyInfo(Variant::STRING, "export/switch/build_romfs", PROPERTY_HINT_GLOBAL_FILE, exe_ext));
 
-	Ref<EditorExportPlatformSwitch> exporter = Ref<EditorExportPlatformSwitch>(memnew(EditorExportPlatformSwitch));
+	Ref<EditorExportPlatformSwitch> exporter;
+	exporter.instance();
 	EditorExport::get_singleton()->add_export_platform(exporter);
 }

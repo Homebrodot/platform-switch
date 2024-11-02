@@ -41,6 +41,7 @@ def get_opts():
     return [
         BoolVariable("use_sanitizer", "Use LLVM compiler address sanitizer", False),
         BoolVariable("use_leak_sanitizer", "Use LLVM compiler memory leaks sanitizer (implies use_sanitizer)", False),
+        BoolVariable("use_lto", "", False),
         EnumVariable("debug_symbols", "Add debugging symbols to release builds", "yes", ("yes", "no", "full")),
         BoolVariable("separate_debug_symbols", "Create a separate file containing debugging symbols", False),
         BoolVariable("touch", "Enable touch events", True),

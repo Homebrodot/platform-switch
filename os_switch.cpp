@@ -217,7 +217,7 @@ void OS_Switch::alert(const String &p_alert, const String &p_title) {
 	errorApplicationCreate(&config, p_title.utf8().ptr(), p_alert.utf8().ptr());
 	errorApplicationShow(&config);
 }
-String OS_Switch::get_stdin_string(bool p_block) {
+String OS_Switch::get_stdin_string() {
 	return "";
 }
 Point2 OS_Switch::get_mouse_position() const {
